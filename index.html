@@ -8,16 +8,14 @@
 </head>
 
 <body>
-
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <img src="assets/deepocean-logo-jpg.jpg" class="logo-img" alt="DeepOcean Logo" />
 
     <nav>
-      <!-- type="button" penting agar tidak submit form -->
-      <button type="button" class="nav-btn active" onclick="openTab('input', this)">📥 Input Data</button>
-      <button type="button" class="nav-btn" onclick="openTab('cek', this)">📊 Cek Data</button>
-      <button type="button" class="nav-btn" onclick="openTab('trans', this)">📄 Transmittal</button>
+      <button type="button" class="nav-btn active" data-tab="input">📥 Input Data</button>
+      <button type="button" class="nav-btn" data-tab="cek">📊 Cek Data</button>
+      <button type="button" class="nav-btn" data-tab="trans">📄 Transmittal</button>
     </nav>
 
     <div class="dark-toggle">
@@ -31,8 +29,6 @@
 
   <!-- MAIN CONTENT -->
   <main class="content">
-
-    <!-- TOPBAR -->
     <header class="topbar">
       <h1>HDD Tracking System</h1>
     </header>
@@ -42,29 +38,20 @@
       <h2 class="section-title">Input Data HDD</h2>
 
       <div class="card">
-        <!-- tambahkan novalidate kalau validasi dilakukan via JS -->
         <form id="inputForm" novalidate>
-          <div class="grid">
-            <div class="field">
-              <label for="itemNo">Item No.</label>
-              <input id="itemNo" name="Item No" type="text" autocomplete="off" />
-            </div>
-
-            <div class="field">
-              <label for="jobYr">Job Yr</label>
-              <input id="jobYr" name="Job Yr" type="text" autocomplete="off" />
-            </div>
-
-            <div class="field">
-              <label for="projectNo">Project No</label>
-              <input id="projectNo" name="Project No" type="text" autocomplete="off" />
-            </div>
+          <div class="toolbar slim">
+            <span class="muted">
+              Sheet: <b>Data Device Registry</b> 
+            </span>
           </div>
 
-          <p class="placeholder-note">Semua field lainnya akan diletakkan di sini.</p>
+          <!-- Dinamis -->
+          <div id="dynamicFields" class="grid"></div>
 
-          <!-- type="button" supaya tidak reload/submit default -->
-          <button type="button" id="btnSave" class="btn-primary">💾 Simpan Data</button>
+          <div class="form-actions">
+            <button type="button" id="btnSave" class="btn-primary">💾 Simpan Data</button>
+            <div id="saveStatus" class="status muted"></div>
+          </div>
         </form>
       </div>
     </section>
@@ -74,81 +61,70 @@
       <h2 class="section-title">Cek Data HDD</h2>
 
       <div class="toolbar">
-        <input id="searchInput" type="text" placeholder="🔍 Search HDD..." class="search" autocomplete="off" />
+        <input id="searchInput" type="text" placeholder="🔍 Search semua kolom..." class="search" autocomplete="off" />
 
-        <!-- IMPORT EXCEL -->
         <input type="file" id="importExcel" accept=".xls,.xlsx" style="display:none;" />
         <button type="button" class="btn-secondary" id="btnImport">⬆ Import Excel</button>
 
-        <!-- EXPORT EXCEL -->
         <button type="button" class="btn-secondary" id="btnExport">⬇ Export Excel</button>
+
+        <div class="status-pill" id="syncStatus">Offline</div>
       </div>
 
       <div class="card table-container">
         <table>
-          <thead>
-            <tr>
-              <th role="button" tabindex="0" onclick="sortTable(0)">Item No</th>
-              <th role="button" tabindex="0" onclick="sortTable(1)">Client</th>
-              <th role="button" tabindex="0" onclick="sortTable(2)">Device</th>
-              <th role="button" tabindex="0" onclick="sortTable(3)">SN</th>
-              <th role="button" tabindex="0" onclick="sortTable(4)">Location</th>
-              <th>Remarks</th>
-            </tr>
-          </thead>
-
-          <!-- tbody dikosongkan agar data bisa di-render dari Sheets/API -->
+          <thead id="tableHead"></thead>
           <tbody id="dataTable">
-            <!-- Jika mau tetap ada placeholder, boleh pakai ini -->
             <tr id="placeholderRow">
-              <td colspan="6" style="opacity:0.7;">Belum ada data. Silakan import atau load dari database.</td>
+              <td colspan="5" style="opacity:0.7;">Loading...</td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <div class="muted" id="tableHint"></div>
     </section>
 
     <!-- TRANSMITTAL -->
     <section id="trans" class="page">
-      <h2 class="section-title">Transmittal Form</h2>
+      <h2 class="section-title">Transmittal</h2>
 
       <div class="card">
+        <p class="muted">
+          Kolom Transmittal sudah ada di form utama. Halaman ini siap dikembangkan untuk Generate PDF.
+        </p>
+
         <form id="transForm" novalidate>
-          <div class="grid">
+          <div class="grid grid-3">
             <div class="field">
-              <label for="transNo">Transmittal No.</label>
-              <input id="transNo" name="Transmittal No" type="text" autocomplete="off" />
+              <label for="transNoQuick">Transmital No. to Client</label>
+              <input id="transNoQuick" type="text" autocomplete="off" />
             </div>
 
             <div class="field">
-              <label for="transDate">Tanggal</label>
-              <input id="transDate" name="Tanggal" type="date" />
+              <label for="transDateQuick">Transmittal Date</label>
+              <input id="transDateQuick" type="date" />
             </div>
 
             <div class="field">
-              <label for="transClient">Client</label>
-              <input id="transClient" name="Client" type="text" autocomplete="off" />
+              <label for="clientQuick">End Client</label>
+              <input id="clientQuick" type="text" autocomplete="off" />
             </div>
           </div>
 
-          <p class="placeholder-note">Field transmittal lainnya akan ditambahkan di sini.</p>
-
-          <!-- type="button" agar tidak submit default -->
-          <button type="button" id="btnGeneratePdf" class="btn-primary">📄 Generate PDF</button>
+          <button type="button" id="btnGeneratePdf" class="btn-primary">📄 Generate PDF (Next)</button>
         </form>
       </div>
     </section>
 
   </main>
 
-  <!-- Library XLSX -->
+  <!-- XLSX -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <!-- PENTING: cache-busting agar app.js tidak nyangkut versi lama -->
-  <script src="app.js?v=20260205-1"></script>
+  <!-- App -->
+  <script src="app.js?v=20260205-4"></script>
 
-  <!-- Optional: fallback kalau app.js belum kebaca -->
   <noscript>Aktifkan JavaScript untuk menjalankan aplikasi ini.</noscript>
-
 </body>
 </html>
