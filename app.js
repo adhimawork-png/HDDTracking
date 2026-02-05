@@ -47,6 +47,19 @@ const FIELD_TYPES = {
 };
 
 // ======================================
+// SELECT OPTIONS (Dropdown)
+// ======================================
+const FIELD_SELECT_OPTIONS = {
+  "Device Capacity": [
+    "",        // default kosong
+    "500 GB",
+    "1 TB",
+    "2 TB",
+    "4 TB",
+  ]
+};
+
+// ======================================
 // STATE
 // ======================================
 let SHEET_DATA = [];
@@ -203,11 +216,27 @@ function buildForm() {
     lab.setAttribute("for", id);
     lab.textContent = label;
 
-    const inp = document.createElement("input");
-    inp.id = id;
-    inp.name = label;
-    inp.type = FIELD_TYPES[label] || "text";
-    inp.autocomplete = "off";
+    let inp;
+
+    // ✅ Device Capacity → dropdown
+    if (FIELD_SELECT_OPTIONS[label]) {
+      inp = document.createElement("select");
+      inp.id = id;
+      inp.name = label;
+
+      FIELD_SELECT_OPTIONS[label].forEach((opt) => {
+        const option = document.createElement("option");
+        option.value = opt;
+        option.textContent = opt === "" ? "Pilih..." : opt;
+        inp.appendChild(option);
+      });
+    } else {
+      inp = document.createElement("input");
+      inp.id = id;
+      inp.name = label;
+      inp.type = FIELD_TYPES[label] || "text";
+      inp.autocomplete = "off";
+    }
 
     field.appendChild(lab);
     field.appendChild(inp);
@@ -359,7 +388,6 @@ function renderCards(data) {
     return;
   }
 
-  // Summary (ringkas dulu supaya readable)
   const SUMMARY_FIELDS = [
     "Item No.",
     "Job No.",
@@ -476,7 +504,8 @@ $("btnSave")?.addEventListener("click", async () => {
   const rowObj = {};
   FIELDS.forEach((label) => {
     const id = FIELD_ID_MAP[label];
-    rowObj[label] = $(id)?.value?.trim?.() ?? "";
+    const el = $(id);
+    rowObj[label] = el?.value?.trim?.() ?? "";
   });
 
   if (!rowObj["Item No."]) {
