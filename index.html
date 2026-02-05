@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDD Tracking Web App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <img src="assets/deepocean-logo-jpg.jpg" class="logo-img">
+
+    <nav>
+        <button class="nav-btn active" onclick="openTab('input', this)">📥 Input Data</button>
+        <button class="nav-btn" onclick="openTab('cek', this)">📊 Cek Data</button>
+        <button class="nav-btn" onclick="openTab('trans', this)">📄 Transmittal</button>
+    </nav>
+
+    <div class="dark-toggle">
+        <label class="switch">
+            <input type="checkbox" id="darkModeToggle">
+            <span class="slider"></span>
+        </label>
+        <span class="dark-label">Dark Mode</span>
+    </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="content">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <h1>HDD Tracking System</h1>
+    </header>
+
+    <!-- INPUT DATA -->
+    <section id="input" class="page active">
+        <h2 class="section-title">Input Data HDD</h2>
+        
+        <div class="card">
+            <form id="inputForm">
+                <div class="grid">
+                    <div class="field">
+                        <label>Item No.</label>
+                        <input type="text">
+                    </div>
+                    <div class="field">
+                        <label>Job Yr</label>
+                        <input type="text">
+                    </div>
+                    <div class="field">
+                        <label>Project No</label>
+                        <input type="text">
+                    </div>
+                </div>
+
+                <p class="placeholder-note">Semua field lainnya akan diletakkan di sini.</p>
+
+                <button class="btn-primary">💾 Simpan Data</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- CEK DATA -->
+    <section id="cek" class="page">
+        <h2 class="section-title">Cek Data HDD</h2>
+
+        <div class="toolbar">
+            <input type="text" placeholder="🔍 Search HDD..." class="search">
+
+            <!-- IMPORT EXCEL -->
+            <input type="file" id="importExcel" accept=".xls,.xlsx" style="display:none;">
+            <button class="btn-secondary" onclick="document.getElementById('importExcel').click()">⬆ Import Excel</button>
+
+            <!-- EXPORT EXCEL -->
+            <button class="btn-secondary" onclick="exportExcel()">⬇ Export Excel</button>
+        </div>
+
+        <div class="card table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">Item No</th>
+                        <th onclick="sortTable(1)">Client</th>
+                        <th onclick="sortTable(2)">Device</th>
+                        <th onclick="sortTable(3)">SN</th>
+                        <th onclick="sortTable(4)">Location</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTable">
+                    <tr>
+                        <td>001</td>
+                        <td>Pertamina</td>
+                        <td>HDD 2TB</td>
+                        <td>SN1234</td>
+                        <td>Server Room</td>
+                        <td>OK</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- TRANSMITTAL -->
+    <section id="trans" class="page">
+        <h2 class="section-title">Transmittal Form</h2>
+
+        <div class="card">
+            <form id="transForm">
+                <div class="grid">
+                    <div class="field">
+                        <label>Transmittal No.</label>
+                        <input type="text">
+                    </div>
+
+                    <div class="field">
+                        <label>Tanggal</label>
+                        <input type="date">
+                    </div>
+
+                    <div class="field">
+                        <label>Client</label>
+                        <input type="text">
+                    </div>
+                </div>
+
+                <p class="placeholder-note">Field transmittal lainnya akan ditambahkan di sini.</p>
+
+                <button class="btn-primary">📄 Generate PDF</button>
+            </form>
+        </div>
+    </section>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
