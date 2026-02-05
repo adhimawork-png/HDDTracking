@@ -11,7 +11,7 @@ Selain itu, aplikasi terhubung dengan **Google Sheets API (via Apps Script)** un
 *   Menampilkan tabel data HDD
 *   Mengelola form Transmittal
 
-## eatures
+## Features
 ### **1. Input Data**
 *   Form untuk memasukkan data HDD baru
 *   Field seperti: Item No, Job Yr, Project No, dll
