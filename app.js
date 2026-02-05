@@ -29,7 +29,7 @@ const FIELDS = [
   "Device Capacity",
   "New / Reuse",
   "Used Capacity",
-  "Data Library Location \\ Shelve", // di JS harus double slash agar jadi "\" saat key
+  "Data Library Location \\ Shelve",
   "Updated Data Library",
   "Checked by",
   "Sent to Client",
@@ -75,14 +75,18 @@ function setSaveStatus(text, isError = false) {
   el.style.color = isError ? "#b00020" : "";
 }
 
-// ✅ escape HTML yang benar (untuk mencegah XSS saat render tabel)
+// ✅ escape HTML yang BENAR (mencegah XSS & tidak double-escape)
 function escapeHtml(v) {
-  return String(v ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  return String(v ?? "").replace(/[&<>"']/g, (ch) => {
+    switch (ch) {
+      case "&": return "&amp;";
+      case "<": return "&lt;";
+      case ">": return "&gt;";
+      case '"': return "&quot;";
+      case "'": return "&#039;";
+      default: return ch;
+    }
+  });
 }
 
 function slugify(s) {
@@ -154,7 +158,7 @@ function jsonp(url, timeoutMs = FETCH_TIMEOUT_MS) {
 // ======================================
 function openTab(pageId, btn) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  setTimeout(() => document.getElementById(pageId).classList.add("active"), 10);
+  setTimeout(() => document.getElementById(pageId)?.classList.add("active"), 10);
 
   document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
@@ -247,7 +251,6 @@ function buildTableHead() {
 // API GET (JSONP) — FIX utama agar data muncul di GitHub Pages
 // ======================================
 async function apiGetAll() {
-  // JSONP bypass CORS untuk web statis [1](https://stackoverflow.com/questions/53433938/how-do-i-allow-a-cors-requests-in-my-google-script)
   const json = await jsonp(API_URL, FETCH_TIMEOUT_MS);
 
   if (!json || json.ok !== true) {
@@ -255,9 +258,7 @@ async function apiGetAll() {
   }
   if (json.data && Array.isArray(json.data)) return json.data;
 
-  // fallback (kalau suatu hari format berubah)
   if (Array.isArray(json)) return json;
-
   return [];
 }
 
@@ -265,7 +266,6 @@ async function apiGetAll() {
 // API POST append row (tetap fetch)
 // ======================================
 async function apiAppendRow(rowObj) {
-  // Workaround umum Apps Script untuk POST: text/plain + redirect follow [1](https://stackoverflow.com/questions/53433938/how-do-i-allow-a-cors-requests-in-my-google-script)
   const res = await fetchWithTimeout(API_URL, {
     method: "POST",
     redirect: "follow",
@@ -304,8 +304,9 @@ function computeView() {
 
       const na = Number(va);
       const nb = Number(vb);
-      const bothNum = !Number.isNaN(na) && !Number.isNaN(nb) &&
-                      String(va).trim() !== "" && String(vb).trim() !== "";
+      const bothNum =
+        !Number.isNaN(na) && !Number.isNaN(nb) &&
+        String(va).trim() !== "" && String(vb).trim() !== "";
 
       if (bothNum) return (na - nb) * mult;
 
@@ -316,6 +317,7 @@ function computeView() {
   return view;
 }
 
+// ===== TABLE VIEW (desktop/laptop) — UI lama TIDAK diubah =====
 function renderTable(data) {
   const tbody = $("dataTable");
   const hint = $("tableHint");
@@ -345,15 +347,101 @@ function renderTable(data) {
   }
 }
 
+// ===== CARD VIEW (mobile) — baru, tidak ganggu table =====
+function renderCards(data) {
+  const list = $("cardList");
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    list.innerHTML = `<div class="muted" style="opacity:0.7;">Tidak ada data.</div>`;
+    return;
+  }
+
+  // Summary (ringkas dulu supaya readable)
+  const SUMMARY_FIELDS = [
+    "Item No.",
+    "Job No.",
+    "Job Desc.",
+    "Device Model",
+    "Device Type",
+    "SN:",
+    "Date Deployed"
+  ];
+  const summarySet = new Set(SUMMARY_FIELDS);
+
+  const maxRows = 200; // lebih ringan di HP
+  const shown = data.slice(0, maxRows);
+
+  for (const row of shown) {
+    const card = document.createElement("div");
+    card.className = "mobile-card";
+
+    const summaryHtml = SUMMARY_FIELDS.map((k) => {
+      const label = escapeHtml(k);
+      const value = escapeHtml(row?.[k] ?? "");
+      return `
+        <div class="mobile-row">
+          <div class="mobile-label">${label}</div>
+          <div class="mobile-value">${value || "<span class='muted'>-</span>"}</div>
+        </div>
+      `;
+    }).join("");
+
+    const detailHtml = FIELDS
+      .filter(k => !summarySet.has(k))
+      .map((k) => {
+        const label = escapeHtml(k);
+        const value = escapeHtml(row?.[k] ?? "");
+        return `
+          <div class="mobile-row">
+            <div class="mobile-label">${label}</div>
+            <div class="mobile-value">${value || "<span class='muted'>-</span>"}</div>
+          </div>
+        `;
+      }).join("");
+
+    card.innerHTML = `
+      <div class="mobile-summary">
+        ${summaryHtml}
+      </div>
+
+      <div class="mobile-details">
+        <details>
+          <summary>Lihat detail lainnya</summary>
+          <div>
+            ${detailHtml}
+          </div>
+        </details>
+      </div>
+    `;
+
+    list.appendChild(card);
+  }
+
+  if (data.length > maxRows) {
+    const more = document.createElement("div");
+    more.className = "muted";
+    more.style.opacity = "0.7";
+    more.textContent = `Menampilkan ${maxRows} dari ${data.length} baris (limit untuk performa di HP).`;
+    list.appendChild(more);
+  }
+}
+
 function sortTableBy(key) {
   if (!key) return;
+
   if (CURRENT_SORT.key === key) {
     CURRENT_SORT.dir = CURRENT_SORT.dir === "asc" ? "desc" : "asc";
   } else {
     CURRENT_SORT.key = key;
     CURRENT_SORT.dir = "asc";
   }
-  renderTable(computeView());
+
+  const view = computeView();
+  renderTable(view);
+  renderCards(view);
 }
 
 // ======================================
@@ -365,11 +453,15 @@ async function loadAndRenderFromSheet() {
     const data = await apiGetAll();
     SHEET_DATA = data || [];
     setSyncStatus("ok", `Online • ${SHEET_DATA.length} rows`);
-    renderTable(computeView());
+
+    const view = computeView();
+    renderTable(view);
+    renderCards(view);
   } catch (err) {
     console.error(err);
     setSyncStatus("err", "Error");
     renderTable([]);
+    renderCards([]);
     const hint = $("tableHint");
     if (hint) hint.textContent = "Gagal load data. Cek Console (F12): " + (err.message || err);
   }
@@ -414,7 +506,10 @@ $("searchInput")?.addEventListener("input", (e) => {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(() => {
     CURRENT_QUERY = val;
-    renderTable(computeView());
+
+    const view = computeView();
+    renderTable(view);
+    renderCards(view);
   }, 150);
 });
 
@@ -439,7 +534,10 @@ $("importExcel")?.addEventListener("change", function (e) {
     CURRENT_SORT = { key: null, dir: "asc" };
 
     setSyncStatus("ok", `Preview Import • ${SHEET_DATA.length} rows`);
-    renderTable(computeView());
+
+    const view = computeView();
+    renderTable(view);
+    renderCards(view);
 
     alert(
       "📁 Import Excel berhasil!\nPreview: " + SHEET_DATA.length +
