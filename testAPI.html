@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test API Google Sheets</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    button { margin: 10px 0; padding: 10px 20px; }
+    pre { background: #eee; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Test API Google Sheets</h2>
+
+  <button onclick="loadData()">Ambil Data</button>
+  <button onclick="addData()">Tambah Data</button>
+
+  <h3>Output:</h3>
+  <pre id="output">Belum ada output</pre>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbw75CkrBfD3kCXyhuP0axE0co7Y2zvnYQRoYocETBVwKjiNTsgj_P0Np3i-bn-ut6rJ/exec";
+
+async function loadData() {
+  const out = document.getElementById("output");
+  out.textContent = "Loading...";
+
+  try {
+    const res = await fetch(API_URL);
+    const json = await res.json();
+    out.textContent = JSON.stringify(json, null, 2);
+  } catch (err) {
+    out.textContent = "ERROR: " + err;
+  }
+}
+
+async function addData() {
+  const out = document.getElementById("output");
+  out.textContent = "Mengirim data...";
+
+  const sample = {
+    ID: "ID-" + Math.floor(Math.random() * 10000),
+    Tanggal: new Date().toISOString().split("T")[0],
+    Nilai: Math.floor(Math.random() * 500),
+    Nama: "Percobaan"
+  };
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ row: sample })
+    });
+    const json = await res.json();
+    out.textContent = JSON.stringify(json, null, 2);
+  } catch (err) {
+    out.textContent = "ERROR: " + err;
+  }
+}
+</script>
+
+</body>
+</html>
