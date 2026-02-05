@@ -118,7 +118,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 .muted { opacity: 0.75; }
 .status { font-size: 13px; }
 
-/* GRID FORM - banyak field */
+/* GRID FORM */
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -136,7 +136,8 @@ input:checked + .slider:before { transform: translateX(20px); }
   font-size: 13px;
   line-height: 1.2;
 }
-.field input {
+.field input,
+.field select {
   padding: 10px;
   border-radius: 6px;
   border: 1px solid var(--border);
@@ -218,7 +219,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1700px; /* banyak kolom */
+  min-width: 1700px;
 }
 th {
   background: #d9f3f4;
@@ -239,19 +240,14 @@ td {
 tr:hover td { background: rgba(0,0,0,0.02); }
 
 /* PAGES */
-.page { display: none; }
-.page.active { display: block; }
-.page {
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.35s ease, transform 0.35s ease;
-}
-.page.active { opacity: 1; transform: translateY(0px); }
+.page { display: none; opacity: 0; transform: translateY(10px); transition: opacity .35s, transform .35s; }
+.page.active { display: block; opacity: 1; transform: translateY(0); }
 
 /* DARK MODE */
 body.dark { background: #141414; color: rgba(255,255,255,0.9); }
 body.dark .card { background: #1e1e1e; }
-body.dark .field input { background: #2a2a2a; border-color: #3a3a3a; color: #fff; }
+body.dark .field input,
+body.dark .field select { background: #2a2a2a; border-color: #3a3a3a; color: #fff; }
 body.dark table, body.dark th, body.dark td { background: #262626; color: white; }
 body.dark th { background: #1f3b3e; }
 body.dark tr:hover td { background: rgba(255,255,255,0.04); }
@@ -277,126 +273,42 @@ body.dark .status-pill { background: #222; border-color: #333; color: #eee; }
   .grid { grid-template-columns: 1fr; }
   .toolbar { flex-direction: column; align-items: stretch; }
   .btn-secondary { width: 100%; }
-  .status-pill { margin-left: 0; width: fit-content; }
+  .status-pill { margin-left: 0; }
   .form-actions { flex-direction: column; align-items: stretch; }
   .btn-primary { width: 100%; }
 }
 
-/* DARK MODE FILTER (tidak mengubah UI lama, hanya row filter saja) */
-body.dark .filter-row th {
-  background: #1e1e1e;
-  border-top: 1px solid #333;
-}
-
-body.dark .col-filter {
-  background: #2a2a2a;
-  border-color: #3a3a3a;
-  color: white;
-}
-
-body.dark .col-filter::placeholder {
-  color: #bbbbbb;
-}
-
-/* ============================================================
-   FILTER PER KOLOM — KOMBINASI 1 + 2 + 3
-   (UI lama tetap 100% utuh, filter tampil elegan & presisi)
-   ============================================================ */
-
-/* Row filter berada tepat di bawah header (sticky presisi) */
-.filter-row th {
-  background: #f5f8f8;           /* abu‑abu soft */
-  padding: 4px 5px;              /* tipis & minimalis */
-  border-top: 1px solid #d5e0e0; /* halus, menyatu */
-  position: sticky;
-  top: 42px;                     /* nilai ini pas untuk header lama */
-  z-index: 2;                    /* tetap di atas konten tapi di bawah header */
-}
-
-/* Input filter minimalis */
-.col-filter {
-  width: 100%;
-  padding: 5px 7px;              /* tipis */
-  font-size: 12px;               /* mini */
-  border-radius: 5px;
-  border: 1px solid #c6d2d3;     /* abu-abu lembut */
-  background: #ffffff;
-  color: #333;
-  transition: 0.2s ease-in-out;
-}
-
-/* Placeholder lembut */
-.col-filter::placeholder {
-  color: #9aa9ad;
-  font-size: 11px;
-}
-
-/* Focus elegan */
-.col-filter:focus {
-  border-color: var(--deepocean-green);
-  box-shadow: 0 0 3px var(--deepocean-green-light);
-  outline: none;
-}
-
-/* ============================
-   DARK MODE FILTER ROW
-   ============================ */
-body.dark .filter-row th {
-  background: #1a1f1f;           /* abu gelap soft */
-  border-top: 1px solid #2e3e3f;
-}
-
-body.dark .col-filter {
-  background: #222;
-  border-color: #333;
-  color: #fff;
-}
-
-body.dark .col-filter::placeholder {
-  color: #aaa;
-}
-
-/* =======================================================
-   FIX WIDTH TABEL — AGAR KOLUM MENYESUAIKAN ISI TEKS
-   ======================================================= */
-
-/* biarkan tabel mengecil secara otomatis berdasarkan konten */
+/* ===========================================================
+   FIX WIDTH TABEL
+=========================================================== */
 table {
   min-width: auto !important;
   width: max-content !important;
   table-layout: auto !important;
 }
 
-/* sel tabel lebih kompak */
 th, td {
   padding: 6px 10px !important;
   white-space: nowrap;
 }
 
-/* container scroll horizontal */
 .table-container {
   overflow-x: auto !important;
   display: block;
 }
 
-/* =======================================================
-   FITUR TAMBAHAN: DESKTOP = TABLE, HP = CARD VIEW
-   (Tidak mengubah UI desktop/laptop sama sekali)
-   ======================================================= */
-
-/* Default: tampilkan table, sembunyikan card view */
+/* ===========================================================
+   MOBILE CARD VIEW
+=========================================================== */
 .card-container { display: none; }
 
-/* HP: sembunyikan table, tampilkan card view */
 @media (max-width: 768px) {
   .table-container { display: none !important; }
-  .card-container  { display: block !important; }
+  .card-container { display: block !important; }
 }
 
-/* Card view layout */
 .card-list { display: grid; gap: 12px; }
 
-/* 1 card per row */
 .mobile-card {
   background: #fff;
   border-radius: 12px;
@@ -410,7 +322,6 @@ body.dark .mobile-card {
   box-shadow: 0 4px 15px rgba(0,0,0,0.35);
 }
 
-/* Baris field: label kiri, value kanan */
 .mobile-row {
   display: flex;
   justify-content: space-between;
@@ -418,65 +329,25 @@ body.dark .mobile-card {
   padding: 8px 0;
   border-bottom: 1px dashed rgba(0,0,0,0.12);
 }
-.mobile-row:last-child { border-bottom: none; padding-bottom: 2px; }
-body.dark .mobile-row { border-bottom-color: rgba(255,255,255,0.10); }
+.mobile-row:last-child { border-bottom: none; }
 
 .mobile-label {
   flex: 0 0 42%;
   font-weight: 700;
   font-size: 12px;
   color: var(--deepocean-green-dark);
-  opacity: 0.95;
-  line-height: 1.25;
 }
 body.dark .mobile-label { color: #9adfe4; }
 
 .mobile-value {
   flex: 1 1 auto;
   font-size: 13px;
-  line-height: 1.35;
   color: #222;
-  word-break: break-word;
 }
 body.dark .mobile-value { color: rgba(255,255,255,0.92); }
 
-/* Summary + expand */
-.mobile-summary {
-  display: grid;
-  gap: 2px;
-}
+.mobile-summary { display: grid; gap: 2px; }
 
-.mobile-actions {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.mobile-toggle {
-  border: 1px solid rgba(0,0,0,0.10);
-  background: rgba(0, 113, 122, 0.08);
-  color: var(--deepocean-green-dark);
-  padding: 8px 10px;
-  border-radius: 10px;
-  font-size: 13px;
-  cursor: pointer;
-  user-select: none;
-}
-.mobile-toggle:hover {
-  background: rgba(0, 113, 122, 0.14);
-}
-
-body.dark .mobile-toggle {
-  border-color: rgba(255,255,255,0.10);
-  background: rgba(11, 154, 166, 0.12);
-  color: rgba(255,255,255,0.92);
-}
-body.dark .mobile-toggle:hover {
-  background: rgba(11, 154, 166, 0.18);
-}
-
-/* detail area */
 .mobile-details {
   margin-top: 10px;
   border-top: 1px solid rgba(0,0,0,0.08);
@@ -486,23 +357,14 @@ body.dark .mobile-details {
   border-top-color: rgba(255,255,255,0.10);
 }
 
-/* Native <details> styling refinement */
-.mobile-details details {
-  border-radius: 10px;
-  overflow: hidden;
-}
 .mobile-details summary {
-  list-style: none;
   cursor: pointer;
   font-weight: 700;
   font-size: 13px;
-  color: var(--deepocean-green-dark);
   padding: 8px 6px;
+  color: var(--deepocean-green-dark);
 }
-.mobile-details summary::-webkit-details-marker { display: none; }
 body.dark .mobile-details summary { color: #9adfe4; }
-
-/* Optional: membuat summary tetap terlihat klikable */
 .mobile-details summary::after {
   content: "▼";
   float: right;
