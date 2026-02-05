@@ -87,12 +87,6 @@ fetch(API_URL, {
 });
 ```
 
-## Cara Upload Logo
-1.  Masuk folder `assets/`
-2.  Klik **Add file → Upload files**
-3.  Upload file JPG logo
-4.  Di HTML gunakan:
-
 ## UI/UX Notes
 *   Sidebar tetap (sticky)
 *   Warna konsisten (teal + putih)
