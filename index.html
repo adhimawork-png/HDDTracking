@@ -1,143 +1,154 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HDD Tracking Web App</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HDD Tracking Web App</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-    <img src="assets/deepocean-logo-jpg.jpg" class="logo-img">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <img src="assets/deepocean-logo-jpg.jpg" class="logo-img" alt="DeepOcean Logo" />
 
     <nav>
-        <button class="nav-btn active" onclick="openTab('input', this)">📥 Input Data</button>
-        <button class="nav-btn" onclick="openTab('cek', this)">📊 Cek Data</button>
-        <button class="nav-btn" onclick="openTab('trans', this)">📄 Transmittal</button>
+      <!-- type="button" penting agar tidak submit form -->
+      <button type="button" class="nav-btn active" onclick="openTab('input', this)">📥 Input Data</button>
+      <button type="button" class="nav-btn" onclick="openTab('cek', this)">📊 Cek Data</button>
+      <button type="button" class="nav-btn" onclick="openTab('trans', this)">📄 Transmittal</button>
     </nav>
 
     <div class="dark-toggle">
-        <label class="switch">
-            <input type="checkbox" id="darkModeToggle">
-            <span class="slider"></span>
-        </label>
-        <span class="dark-label">Dark Mode</span>
+      <label class="switch">
+        <input type="checkbox" id="darkModeToggle" />
+        <span class="slider"></span>
+      </label>
+      <span class="dark-label">Dark Mode</span>
     </div>
-</aside>
+  </aside>
 
-<!-- MAIN CONTENT -->
-<main class="content">
+  <!-- MAIN CONTENT -->
+  <main class="content">
 
     <!-- TOPBAR -->
     <header class="topbar">
-        <h1>HDD Tracking System</h1>
+      <h1>HDD Tracking System</h1>
     </header>
 
     <!-- INPUT DATA -->
     <section id="input" class="page active">
-        <h2 class="section-title">Input Data HDD</h2>
-        
-        <div class="card">
-            <form id="inputForm">
-                <div class="grid">
-                    <div class="field">
-                        <label>Item No.</label>
-                        <input type="text">
-                    </div>
-                    <div class="field">
-                        <label>Job Yr</label>
-                        <input type="text">
-                    </div>
-                    <div class="field">
-                        <label>Project No</label>
-                        <input type="text">
-                    </div>
-                </div>
+      <h2 class="section-title">Input Data HDD</h2>
 
-                <p class="placeholder-note">Semua field lainnya akan diletakkan di sini.</p>
+      <div class="card">
+        <!-- tambahkan novalidate kalau validasi dilakukan via JS -->
+        <form id="inputForm" novalidate>
+          <div class="grid">
+            <div class="field">
+              <label for="itemNo">Item No.</label>
+              <input id="itemNo" name="Item No" type="text" autocomplete="off" />
+            </div>
 
-                <button class="btn-primary">💾 Simpan Data</button>
-            </form>
-        </div>
+            <div class="field">
+              <label for="jobYr">Job Yr</label>
+              <input id="jobYr" name="Job Yr" type="text" autocomplete="off" />
+            </div>
+
+            <div class="field">
+              <label for="projectNo">Project No</label>
+              <input id="projectNo" name="Project No" type="text" autocomplete="off" />
+            </div>
+          </div>
+
+          <p class="placeholder-note">Semua field lainnya akan diletakkan di sini.</p>
+
+          <!-- type="button" supaya tidak reload/submit default -->
+          <button type="button" id="btnSave" class="btn-primary">💾 Simpan Data</button>
+        </form>
+      </div>
     </section>
 
     <!-- CEK DATA -->
     <section id="cek" class="page">
-        <h2 class="section-title">Cek Data HDD</h2>
+      <h2 class="section-title">Cek Data HDD</h2>
 
-        <div class="toolbar">
-            <input type="text" placeholder="🔍 Search HDD..." class="search">
+      <div class="toolbar">
+        <input id="searchInput" type="text" placeholder="🔍 Search HDD..." class="search" autocomplete="off" />
 
-            <!-- IMPORT EXCEL -->
-            <input type="file" id="importExcel" accept=".xls,.xlsx" style="display:none;">
-            <button class="btn-secondary" onclick="document.getElementById('importExcel').click()">⬆ Import Excel</button>
+        <!-- IMPORT EXCEL -->
+        <input type="file" id="importExcel" accept=".xls,.xlsx" style="display:none;" />
+        <button type="button" class="btn-secondary" id="btnImport">⬆ Import Excel</button>
 
-            <!-- EXPORT EXCEL -->
-            <button class="btn-secondary" onclick="exportExcel()">⬇ Export Excel</button>
-        </div>
+        <!-- EXPORT EXCEL -->
+        <button type="button" class="btn-secondary" id="btnExport">⬇ Export Excel</button>
+      </div>
 
-        <div class="card table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th onclick="sortTable(0)">Item No</th>
-                        <th onclick="sortTable(1)">Client</th>
-                        <th onclick="sortTable(2)">Device</th>
-                        <th onclick="sortTable(3)">SN</th>
-                        <th onclick="sortTable(4)">Location</th>
-                        <th>Remarks</th>
-                    </tr>
-                </thead>
-                <tbody id="dataTable">
-                    <tr>
-                        <td>001</td>
-                        <td>Pertamina</td>
-                        <td>HDD 2TB</td>
-                        <td>SN1234</td>
-                        <td>Server Room</td>
-                        <td>OK</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+      <div class="card table-container">
+        <table>
+          <thead>
+            <tr>
+              <th role="button" tabindex="0" onclick="sortTable(0)">Item No</th>
+              <th role="button" tabindex="0" onclick="sortTable(1)">Client</th>
+              <th role="button" tabindex="0" onclick="sortTable(2)">Device</th>
+              <th role="button" tabindex="0" onclick="sortTable(3)">SN</th>
+              <th role="button" tabindex="0" onclick="sortTable(4)">Location</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+
+          <!-- tbody dikosongkan agar data bisa di-render dari Sheets/API -->
+          <tbody id="dataTable">
+            <!-- Jika mau tetap ada placeholder, boleh pakai ini -->
+            <tr id="placeholderRow">
+              <td colspan="6" style="opacity:0.7;">Belum ada data. Silakan import atau load dari database.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <!-- TRANSMITTAL -->
     <section id="trans" class="page">
-        <h2 class="section-title">Transmittal Form</h2>
+      <h2 class="section-title">Transmittal Form</h2>
 
-        <div class="card">
-            <form id="transForm">
-                <div class="grid">
-                    <div class="field">
-                        <label>Transmittal No.</label>
-                        <input type="text">
-                    </div>
+      <div class="card">
+        <form id="transForm" novalidate>
+          <div class="grid">
+            <div class="field">
+              <label for="transNo">Transmittal No.</label>
+              <input id="transNo" name="Transmittal No" type="text" autocomplete="off" />
+            </div>
 
-                    <div class="field">
-                        <label>Tanggal</label>
-                        <input type="date">
-                    </div>
+            <div class="field">
+              <label for="transDate">Tanggal</label>
+              <input id="transDate" name="Tanggal" type="date" />
+            </div>
 
-                    <div class="field">
-                        <label>Client</label>
-                        <input type="text">
-                    </div>
-                </div>
+            <div class="field">
+              <label for="transClient">Client</label>
+              <input id="transClient" name="Client" type="text" autocomplete="off" />
+            </div>
+          </div>
 
-                <p class="placeholder-note">Field transmittal lainnya akan ditambahkan di sini.</p>
+          <p class="placeholder-note">Field transmittal lainnya akan ditambahkan di sini.</p>
 
-                <button class="btn-primary">📄 Generate PDF</button>
-            </form>
-        </div>
+          <!-- type="button" agar tidak submit default -->
+          <button type="button" id="btnGeneratePdf" class="btn-primary">📄 Generate PDF</button>
+        </form>
+      </div>
     </section>
 
-</main>
+  </main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="app.js"></script>
+  <!-- Library XLSX -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <!-- PENTING: cache-busting agar app.js tidak nyangkut versi lama -->
+  <script src="app.js?v=20260205-1"></script>
+
+  <!-- Optional: fallback kalau app.js belum kebaca -->
+  <noscript>Aktifkan JavaScript untuk menjalankan aplikasi ini.</noscript>
+
 </body>
 </html>
