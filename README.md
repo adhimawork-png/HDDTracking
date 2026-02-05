@@ -69,7 +69,7 @@ Aplikasi dapat diakses melalui:
 Aplikasi menggunakan Apps Script sebagai backend:
 
 ### Endpoint API:
-    https://script.google.com/macros/s/<YOUR_SCRIPT_ID>/exec
+    [https://script.google.com/macros/s/<YOUR_SCRIPT_ID>/exec](https://script.google.com/macros/s/AKfycbw75CkrBfD3kCXyhuP0axE0co7Y2zvnYQRoYocETBVwKjiNTsgj_P0Np3i-bn-ut6rJ/exec)
 
 ### 1. GET — Ambil Data
 ```js
